@@ -28,6 +28,12 @@ if [[ -d 'vagrant-modules' ]]; then
     echo 'Checking vagrant-modules/v1 for updates...'
     cd 'vagrant-modules'
     git pull &> /dev/null
+    
+    if [[ "$?" -ne "0" ]]; then
+        echo "Couldn't pull from vagrant modules.  :("
+        exit 1
+    fi
+    
     cd ..
 else
     echo 'Cloning vagrant-modules/v1...'
