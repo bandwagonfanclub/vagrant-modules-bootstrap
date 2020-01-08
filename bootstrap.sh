@@ -27,6 +27,7 @@ cd /home/vagrant
 if [[ -d 'vagrant-modules' ]]; then
     echo 'Checking vagrant-modules/v1 for updates...'
     cd 'vagrant-modules'
+    git reset --hard HEAD
     git pull &> /dev/null
     
     if [[ "$?" -ne "0" ]]; then
