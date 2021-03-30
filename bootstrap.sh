@@ -17,6 +17,24 @@ if [[ ! -f /etc/ssh/ssh_known_hosts ]] \
     fi
 fi
 
+# Windows seems to have some issue making ssh-agent available during provision.
+# As a workaround, we'll use keys found in /external-keys if they are available.
+if ! ssh-add -l &> /dev/null; then
+    if ls /external-keys/* &> /dev/null; then
+        echo "No ssh-agent!  But it's ok, you gave me some keys.  I'll get"
+        echo "that going for you..."
+
+        eval "$(ssh-agent -s)"
+        for KEY in /external-keys/*; do
+            ssh-add "$KEY"
+        done
+    else
+        echo "No ssh-agent and no keys in /external-keys.  Helplessly"
+        echo "failing.  :("
+        exit 1
+    fi
+fi
+
 ABLE_TO_CONNECT_TO_GITHUB=$((ssh -T git@github.com &> /dev/null); echo "$?")
 if [[ "$ABLE_TO_CONNECT_TO_GITHUB" -ne "1" ]]; then
     echo "No github key.  See https://bit.ly/2T56TDu ."
@@ -29,12 +47,12 @@ if [[ -d 'vagrant-modules' ]]; then
     cd 'vagrant-modules'
     git reset --hard HEAD &> /dev/null
     git pull &> /dev/null
-    
+
     if [[ "$?" -ne "0" ]]; then
         echo "Couldn't pull from vagrant modules.  :("
         exit 1
     fi
-    
+
     cd ..
 else
     echo 'Cloning vagrant-modules/v1...'
