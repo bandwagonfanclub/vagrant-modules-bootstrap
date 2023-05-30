@@ -11,12 +11,20 @@ if [[ ! -d /vagrant ]]; then
     exit 1
 fi
 
+if ! which jq; then
+    apt -qqy update
+    apt install -qqy jq
+fi
+
 if [[ ! -f /etc/ssh/ssh_known_hosts ]] \
         || ! grep github.com /etc/ss/ssh_known_hosts &> /dev/null; then
     mkdir -p /etc/ssh
     
+    KEY=$(curl -L -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" https://api.github.com/meta | jq -r '.ssh_keys[0]')
+    echo "Adding github key $KEY"
+    
     # Baked-in results of `ssh-keyscan github.com`.
-    echo "github.com ssh-rsa $GITHUB_PUBLIC_KEY" >> /etc/ssh/ssh_known_hosts
+    echo "github.com $KEY" >> /etc/ssh/ssh_known_hosts
 fi
 
 # Windows seems to have some issue making ssh-agent available during provision.
