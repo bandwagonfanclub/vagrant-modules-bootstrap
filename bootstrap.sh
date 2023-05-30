@@ -2,8 +2,6 @@
 
 set -e
 
-echo Changes took!
-
 if [[ ! -d /vagrant ]]; then
     echo "There's no /vagrant directory, so I'm nervous you're running"
     echo "the vagrant-modules bootstrapper inside a host environment.  Exiting"
@@ -12,8 +10,8 @@ if [[ ! -d /vagrant ]]; then
 fi
 
 if ! which jq; then
-    apt -qqy update
-    apt install -qqy jq
+    apt-get -qqy update
+    apt-get install -qqy jq
 fi
 
 if [[ ! -f /etc/ssh/ssh_known_hosts ]] \
